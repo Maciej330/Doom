@@ -28,27 +28,42 @@ int t[102][102]=
     {99,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,99},
     {99,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,99},
     {99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99}
-};
+};  // 23 x 102
 int obraz[30][30], kierunek=0, g1wiersz=10, g1kolumna=4;
 bool w, a, s, d, spacja;
+int q=2;
+
 
 void klawa()
 {
     while(true){
-        if(GetAsyncKeyState('w') & 0x8000) w=true;
-        if(GetAsyncKeyState('s') & 0x8000) s=true;
-        if(GetAsyncKeyState('a') & 0x8000) a=true;
-        if(GetAsyncKeyState('d') & 0x8000) d=true;
+        if(GetAsyncKeyState('W') & 0x8000) w=true;
+        else w=false;
+        if(GetAsyncKeyState('S') & 0x8000) s=true;
+        else s=false;
+        if(GetAsyncKeyState('A') & 0x8000) a=true;
+        else a=false;
+        if(GetAsyncKeyState('D') & 0x8000) d=true;
+        else d=false;
         if(GetAsyncKeyState(' ') & 0x8000) spacja=true;
+        else spacja=false;
     }
 }
 
 
 void ekran()
 {
-    while(true)
+    while(true){
+    if(d==true)
     {
-
+        for(int i=0;i<23;i++){
+            for(int j=0;j<102;j++){
+                cout<<t[i][j];
+            }
+            cout<<endl;
+        }
+    }
+    this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
@@ -56,16 +71,20 @@ void gracz1()
 {
     while(true){
         if(w==true && t[g1wiersz+1]==0){
-            swap(t[g1wiersz],t[g1wiersz+1]);
+            swap(t[g1wiersz][g1kolumna],t[g1wiersz+1][g1kolumna]);
+            g1wiersz++;
             }
         if(s==true && t[g1wiersz-1]==0){
-            swap(t[g1wiersz],t[g1wiersz-1]);
+            swap(t[g1wiersz][g1kolumna],t[g1wiersz-1][g1kolumna]);
+            g1wiersz--;
         }
         if(a==true && t[g1kolumna-1]==0){
-            swap(t[g1kolumna],t[g1kolumna-1]);
+            swap(t[g1wiersz][g1kolumna],t[g1wiersz][g1kolumna-1]);
+            g1kolumna--;
         }
         if(d==true && t[g1kolumna+1]==0){
-            swap(t[g1kolumna],t[g1kolumna+1]);
+            swap(t[g1wiersz][g1kolumna],t[g1wiersz][g1kolumna+1]);
+            g1kolumna++;
         }
     }
 }
