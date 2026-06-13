@@ -1,7 +1,7 @@
 #include<iostream>
 #include<thread>
 #include<windows.h>
-#include<conio.h>
+//#include<conio.h>
 using namespace std;
 int t[102][102]=
 {
@@ -54,38 +54,39 @@ void klawa()
 void ekran()
 {
     while(true){
-    if(d==true)
     {
-        for(int i=0;i<23;i++){
-            for(int j=0;j<102;j++){
+        for(int i=1;i<22;i++){
+            for(int j=1;j<101;j++){
                 cout<<t[i][j];
             }
             cout<<endl;
         }
     }
-    this_thread::sleep_for(std::chrono::seconds(2));
+    this_thread::sleep_for(std::chrono::milliseconds(200));
+    system("cls");
     }
 }
 
 void gracz1()
 {
     while(true){
-        if(w==true && t[g1wiersz+1]==0){
-            swap(t[g1wiersz][g1kolumna],t[g1wiersz+1][g1kolumna]);
-            g1wiersz++;
-            }
-        if(s==true && t[g1wiersz-1]==0){
+        if(w && t[g1wiersz-1][g1kolumna]==0){
             swap(t[g1wiersz][g1kolumna],t[g1wiersz-1][g1kolumna]);
             g1wiersz--;
+            }
+        if(s && t[g1wiersz+1][g1kolumna]==0){
+            swap(t[g1wiersz][g1kolumna],t[g1wiersz+1][g1kolumna]);
+            g1wiersz++;
         }
-        if(a==true && t[g1kolumna-1]==0){
+        if(a==true && t[g1wiersz][g1kolumna-1]==0){
             swap(t[g1wiersz][g1kolumna],t[g1wiersz][g1kolumna-1]);
             g1kolumna--;
         }
-        if(d==true && t[g1kolumna+1]==0){
+        if(d==true && t[g1wiersz][g1kolumna+1]==0){
             swap(t[g1wiersz][g1kolumna],t[g1wiersz][g1kolumna+1]);
             g1kolumna++;
         }
+        this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 }
 
