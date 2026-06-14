@@ -35,6 +35,7 @@ int main() {
             y=wiersz-w;
             radiany=atan2(x, y);
             stopnie=radiany*180.0/M_PI;
+            if(stopnie<0) stopnie=stopnie+360;
             cout<<stopnie<<" ";
         }
         cout<< endl;
