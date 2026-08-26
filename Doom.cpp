@@ -2,7 +2,9 @@
 #include<thread>
 #include<windows.h>
 #include<cmath>
+#include<mmsystem.h>
 using namespace std;
+
 constexpr int rozmiart = 802;
 int t[rozmiart][rozmiart]=
 {
@@ -812,12 +814,13 @@ int t[rozmiart][rozmiart]=
 int g1wiersz=15, g1kolumna=15;
 double dg1wiersz=15, dg1kolumna=15;
 int lwrogow=0;
+int pokonani=0;
 int wprzeciwnik[20], kprzeciwnik[20], pzprzeciwnik[20];
 int nrprzeciwnik[72];
 int nr;
-int kierunek=18, prawo, lewo;
+int kierunek=18, prawo, lewo, myszkierunek=900;
 char obraz[10][72];
-bool w, a, s, d, spacja, pr, lw, ml, wolne;
+bool w, a, s, d, spacja, pr, lw, ml, wolne, omysz=false, start=false;
 int q=2;
 int x, y;
 double radiany, odleglosc, stopnie;
@@ -830,9 +833,15 @@ constexpr int zasieg = 131;
 constexpr int pwg = (zasieg-1) / 2;
 int kat[zasieg][zasieg];
 double odl[zasieg][zasieg];
+POINT kursor;
+int eszerokosc;
+int ewysokosc;
+int srszerokosc;
+int srwysokosc;
 
-void klawa()
+void sterowanie()
 {
+    this_thread::sleep_for(std::chrono::seconds(1));
     while(true){
         if(GetAsyncKeyState('W') & 0x8000) w=true;
         else w=false;
@@ -846,15 +855,21 @@ void klawa()
         else pr=false;
         if(GetAsyncKeyState('Q') & 0x8000) lw=true;
         else lw=false;
-        if(GetAsyncKeyState(' ') & 0x8000) spacja=true;
-        else spacja=false;
-        if (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ml=true;
+        if(GetAsyncKeyState(VK_LBUTTON) & 0x8000) ml=true;
         else ml=false;
         if(GetAsyncKeyState('P') & 0x8000) system("cls");
+        if(GetAsyncKeyState('O') & 0x8000) omysz=!omysz;
+        GetCursorPos(&kursor);
+        if(omysz==true){
+            myszkierunek=myszkierunek+(kursor.x-srszerokosc);
+            kierunek=myszkierunek/50;
+            if(kierunek>71) kierunek=kierunek-72;
+            if(kierunek<0) kierunek=kierunek+72;
+            SetCursorPos(srszerokosc,srwysokosc);
+        }
         this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
-
 
 void ekran()
 {
@@ -871,6 +886,7 @@ void ekran()
             }
             cout<<endl;
         }
+        cout<<"pokonani: "<<pokonani;
 
 /*
         cout<<endl<<endl;
@@ -915,8 +931,10 @@ void ekran()
 
         cout<<kierunek<<"  "<<endl<<dg1wiersz<<"  "<<endl<<dg1kolumna<<"  ";
 
-        */
 
+
+        cout<<kursor.x<<"              "<<endl<<kursor.y<<"                  ";
+*/
         cout<<"\033[H";
         this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -925,11 +943,12 @@ void ekran()
 void gracz1()
 {
     while(true){
+        /*
         if(pr==true) kierunek++;
         if(kierunek>71) kierunek=kierunek-72;
         if(lw==true) kierunek--;
         if(kierunek<0) kierunek=kierunek+72;
-
+        */
 
         if(w==true){
             dg1wiersz=dg1wiersz-cos(kierunek*M_PI/36);
@@ -1448,23 +1467,39 @@ void render()
 
 void bron()
 {
+    mciSendStringA("open \"shotgun.wav\" type waveaudio alias strzal", NULL, 0, NULL);
     while(true){
-        if(spacja==true && nrprzeciwnik[kierunek]!=0 && podl[kierunek]<sodl[kierunek]){
-            pzprzeciwnik[nrprzeciwnik[kierunek]]=pzprzeciwnik[nrprzeciwnik[kierunek]]-35;
-            if(pzprzeciwnik[nrprzeciwnik[kierunek]]<=0){
-                t[wprzeciwnik[nrprzeciwnik[kierunek]]][kprzeciwnik[nrprzeciwnik[kierunek]]]=0;
+        if(ml==true){
+            if(nrprzeciwnik[kierunek]!=0 && podl[kierunek]<sodl[kierunek]){
+                pzprzeciwnik[nrprzeciwnik[kierunek]]=pzprzeciwnik[nrprzeciwnik[kierunek]]-35;
+                if(pzprzeciwnik[nrprzeciwnik[kierunek]]<=0){
+                    t[wprzeciwnik[nrprzeciwnik[kierunek]]][kprzeciwnik[nrprzeciwnik[kierunek]]]=0;
+                    pokonani++;
+                }
             }
-        Beep(440, 100);
+            mciSendStringA("seek strzal to start", NULL, 0, NULL);
+            mciSendStringA("play strzal", NULL, 0, NULL);
+            this_thread::sleep_for(std::chrono::milliseconds(800));
         }
-
-    this_thread::sleep_for(std::chrono::milliseconds(200));
+        this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-
 }
-
+/*
+void muzyka()
+{
+    while(true){
+        PlaySoundA("DOOMmuzyka.wav", NULL, SND_FILENAME | SND_SYNC | SND_NODEFAULT);
+    }
+}
+*/
 int main()
 {
     ios_base::sync_with_stdio(false);
+
+    eszerokosc = GetSystemMetrics(SM_CXSCREEN);
+    ewysokosc = GetSystemMetrics(SM_CYSCREEN);
+    srszerokosc = eszerokosc/2;
+    srwysokosc = ewysokosc/2;
     for(int w=0;w<zasieg;w++){
         for(int k=0;k<zasieg;k++){
             x=k-pwg;
@@ -1503,14 +1538,38 @@ int main()
             }
         }
     }
-    thread f1(klawa);
+
+    cout<<"          __    __   __           ____ __            "<<endl;
+    cout<<"          | \\  |  | |  | \\    /      | | \\           "<<endl;
+    cout<<"          |  | |  | |  | |\\  /|   ---| |  |          "<<endl;
+    cout<<"          |_/  |__| |__| | \\/ |   ___| |_/           "<<endl;
+    cout<<"                       -------                       "<<endl;
+    cout<<"                      | START |                      "<<endl;
+    cout<<"                       -------                       "<<endl;
+    cout<<"                  przybli¿ konsole                   "<<endl;
+    cout<<"                   nacisnij start                    "<<endl;
+    cout<<"                 gdy bedziesz gotowy                 ";
+    while(start==false){
+        GetCursorPos(&kursor);
+        if(GetAsyncKeyState(VK_LBUTTON) & 0x8000){
+            if(kursor.x>=1000 && kursor.x<=1450 && kursor.y>=410 && kursor.y<=660){
+                start=true;
+            }
+        }
+        if(GetAsyncKeyState('P') & 0x8000) system("cls");
+    }
+    cout<<"\e[?25l";
+    thread f1(sterowanie);
     thread f2(ekran);
     thread f3(gracz1);
     thread f4(render);
     thread f5(bron);
+//    thread f6(muzyka);
+
     f1.join();
     f2.join();
     f3.join();
     f4.join();
     f5.join();
+//    f6.join();
 }
