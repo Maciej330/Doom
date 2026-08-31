@@ -1,18 +1,19 @@
-    for(int w=0;w<zasieg;w++){
-        for(int k=0;k<zasieg;k++){
-            wiersz = g1wiersz - pwg + w;
-            kolumna = g1kolumna - pwg + k;
-            if(wiersz>=0 && kolumna>=0 && wiersz<rozmiart && kolumna<rozmiart){
-                if(t[wiersz][kolumna]!=0){
-                    if(t[wiersz][kolumna]==1 && odl[w][k] < sodl[kat[w][k]]){
-                        styp[kat[w][k]]=1;
-                        sodl[kat[w][k]]=odl[w][k];
-                    }
-                    if(t[wiersz][kolumna]==2 && odl[w][k] < sodl[kat[w][k]]+10){
-                        styp[kat[w][k]]=2;
-                        sodl[kat[w][k]]=odl[w][k];
+					if(gt[w][k]==0){
+                        if(gt[w-1][k]==0 && gt[w][k+1]==0 && gt[w+1][k]==1 && gt[w][k-1]==1){
+                            gt[w][k]=2;
+                        }
+                        else if(gt[w-1][k]==1 && gt[w][k+1]==0 && gt[w+1][k]==0 && gt[w][k-1]==1){
+                            gt[w][k]=2;
+                        }
+                        else if(gt[w-1][k]==1 && gt[w][k+1]==1 && gt[w+1][k]==0 && gt[w][k-1]==0){
+                            gt[w][k]=2;
+                        }
+                        else if(gt[w-1][k]==0 && gt[w][k+1]==1 && gt[w+1][k]==1 && gt[w][k-1]==0){
+                            gt[w][k]=2;
+                        }
+                        else if(gt[w-1][k]==0 && gt[w][k+1]==0 && gt[w+1][k]==0 && gt[w][k-1]==0){
+                            if(gt[w-1][k-1]==1 || gt[w-1][k+1]==1 || gt[w+1][k-1]==1 || gt[w+1][k+1]==1){
+                                gt[w][k]=2;
+                            }
                         }
                     }
-                }
-            }
-        }
