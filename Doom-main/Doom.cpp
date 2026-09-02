@@ -19,7 +19,7 @@ int nrprzeciwnik[72];
 int nr;
 int kierunek=18, prawo, lewo, myszkierunek=900;
 char obraz[10][72];
-bool w, a, s, d, spacja, pr, lw, ml, wolne, omysz=true, start=false, fmapa=false;
+bool w, a, s, d, spacja, pr, lw, ml, wolne, omysz=false, start=false;
 int q=2;
 int x, y;
 double radiany, odleglosc, stopnie;
@@ -37,7 +37,6 @@ int eszerokosc;
 int ewysokosc;
 int srszerokosc;
 int srwysokosc;
-int wpoz, kpoz;
 
 int gw=25, gk=25;
 int wpok, kpok;
@@ -71,16 +70,15 @@ void sterowanie()
         else ml=false;
         if(GetAsyncKeyState('P') & 0x8000) system("cls");
         if(GetAsyncKeyState('O') & 0x8000) omysz=!omysz;
-        if(GetAsyncKeyState('F') & 0x8000) fmapa=!fmapa;
         GetCursorPos(&kursor);
         if(omysz==true){
             myszkierunek=myszkierunek+(kursor.x-srszerokosc);
-            kierunek=(myszkierunek/50)%72;
+            kierunek=myszkierunek/50;
             if(kierunek>71) kierunek=kierunek-72;
             if(kierunek<0) kierunek=kierunek+72;
             SetCursorPos(srszerokosc,srwysokosc);
         }
-        this_thread::sleep_for(std::chrono::milliseconds(20));
+        this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
@@ -101,27 +99,8 @@ void ekran()
         }
         cout<<"pozostalo: "<<pozostalo;
 
-        cout<<"\n"<<kierunek<<"  ";
+        cout<<"\n"<<kierunek<<" ";
 
-        cout<<"\n"<<pz<<"  \n";
-
-        for(int i=0;i<72;i++){
-            cout<<nrprzeciwnik[i]<<" ";
-        }
-        wpoz=g1wiersz/skala;
-        kpoz=g1kolumna/skala;
-
-        if(fmapa==true){
-            for(int w=0;w<grozmiar;w++){
-                for(int k=0;k<grozmiar;k++){
-                    if(w==wpoz && k==kpoz) cout<<"$ ";
-                    else if(gt[w][k]==0) cout<<"# ";
-                    else if(gt[w][k]==1 || gt[w][k]==2 || gt[w][k]==5) cout<<"  ";
-
-                }
-                cout<<"\n";
-            }
-        }
 /*
         cout<<"\n"<<"\n";
 
@@ -243,7 +222,7 @@ void gracz1()
         }
 
 
-        this_thread::sleep_for(std::chrono::milliseconds(10));
+        this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
@@ -256,6 +235,7 @@ void render()
         podl[i]=99;
         styp[i]=0;
         ptyp[i]=0;
+        nrprzeciwnik[i]=0;
         nrprzeciwnik[i]=0;
     }
     for(int w=0;w<zasieg;w++){
@@ -280,13 +260,12 @@ void render()
                     sodl[kat[w][k]]=odl[w][k];
                 }
                 if(t[wiersz][kolumna]==5){
-                    nr=0;
                     for(int j=1;j<=lwrogow;j++){
                         if(wprzeciwnik[j]==wiersz && kprzeciwnik[j]==kolumna){
                             nr=j;
                         }
                     }
-                    if(nr>0 && odl[w][k]<20){
+                    if(odl[w][k]<20){
                         for(int i=-4;i<=4;i++){
                             pkat=kat[w][k]+i;
                             if(pkat<0) pkat=pkat+72;
@@ -298,7 +277,7 @@ void render()
                             }
                         }
                     }
-                    else if(nr>0 && odl[w][k]<32){
+                    else if(odl[w][k]<32){
                         for(int i=-3;i<=3;i++){
                             pkat=kat[w][k]+i;
                             if(pkat<0) pkat=pkat+72;
@@ -310,7 +289,7 @@ void render()
                             }
                         }
                     }
-                    else if(nr>0 && odl[w][k]<44){
+                    else if(odl[w][k]<44){
                         for(int i=-2;i<=2;i++){
                             pkat=kat[w][k]+i;
                             if(pkat<0) pkat=pkat+72;
@@ -322,7 +301,7 @@ void render()
                             }
                         }
                     }
-                    else if(nr>0 && odl[w][k]<65){
+                    else if(odl[w][k]<65){
                         for(int i=-1;i<=1;i++){
                             pkat=kat[w][k]+i;
                             if(pkat<0) pkat=pkat+72;
@@ -731,18 +710,6 @@ void muzyka()
     }
 }
 
-void atak()
-{
-    for(int i=0;i<72;i++){
-        if(ptyp[i]==35 || ptyp[i]==24){
-            Sleep(3);
-            if(ptyp[i]==35 || ptyp[i]==24){
-                pz=pz-10;
-            }
-        }
-    }
-}
-
 int main()
 {
 /*
@@ -978,7 +945,6 @@ int main()
     thread f4(render);
     thread f5(bron);
     thread f6(muzyka);
-    thread f7(atak);
 
     f1.join();
     f2.join();
@@ -986,6 +952,5 @@ int main()
     f4.join();
     f5.join();
     f6.join();
-    f7.join();
 
 }
